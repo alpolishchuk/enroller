@@ -22,11 +22,15 @@ $(function () {
         digits: true,
         maxlength: 5,
         required: $('#address:checked')
+      },
+      authority_text: {
+        required: true
       }
     },
     messages: {
       request: "*",
       proxy_address: "*",
+      authority_text: "*",
       proxy_port: {
         digits: "Некорректный порт",
         maxlength: "Значение порта не должно превышать 65535",
