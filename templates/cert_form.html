@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Выпуск сертификатов{% endblock %}
+{% block content %}
+<form action="/enroll" method="post" enctype="multipart/form-data">
+  <table class="content">
+    <tr><td>Адрес УЦ</td>
+      <td><input name="authority" type="text" size=30 placeholder="По умолчанию: 172.17.7.38"></td>
+    </tr>
+    <tr><td>Файлы запроса</td><td><input name="request" type="file" multiple></td></tr>
+    <tr><td>Загрузить цепочку сертификатов</td><td><input name="chain" type="checkbox"></td></tr>
+    <tr><td>Сертификаты в кодировке Base64</td><td><input name="base64" type="checkbox"></td></tr>
+    <tr><td>Использовать прокси</td><td><input id="isProxy" name="isProxy" type="checkbox"></td></tr>
+    <tr id="address"><td>Адрес прокси</td>
+      <td>
+        <select name="proxy_protocol">
+          <option value="http">http</option>
+          <option value="https">https</option>
+        </select>
+        <input name="proxy_address" type="text" placeholder="Адрес прокси">:
+        <input name="proxy_port" type="text" size=6 placeholder="Порт">
+      </td>
+    </tr>
+  </table>
+  <button type="submit">Выпустить</button>
+
+</form>
+{% endblock %}
