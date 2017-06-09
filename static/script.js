@@ -8,7 +8,7 @@ $(function () {
   });
   $('#authority').change(function () {
     $("select option:selected").each(function() {
-      if ($( this ).text() === "Ввести свой") {
+      if ($( this ).text() === "Ввести свой адрес УЦ") {
         $('#authoritySelect').css("display", "none")
         $('#authorityText').css("display", "table-row")
       }
