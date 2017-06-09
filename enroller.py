@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import os
 import zipfile
 import time
 from io import BytesIO
@@ -24,7 +25,8 @@ def server_error(message):
 @app.route("/enroll", methods=['POST'])
 def enroll():
     parser = reqparse.RequestParser()
-    parser.add_argument('authority', location='form', help='Default: 172.17.7.38')
+    parser.add_argument('authority_select', location='form')
+    parser.add_argument('authority_text', location='form')
     parser.add_argument('isProxy', location='form', help='Proxy protocol')
     parser.add_argument('proxy_protocol', location='form', help='Proxy protocol')
     parser.add_argument('proxy_address', location='form', help='Proxy address')
@@ -33,14 +35,23 @@ def enroll():
     parser.add_argument('base64', location='form', help='Get base64 encoded certificate or p7b chain')
     args = parser.parse_args()
 
+    no_requests = [item.filename for item in request.files.getlist('request')
+                   if os.path.splitext(item.filename)[1] != '.p10']
+
+    if no_requests:
+        if len(no_requests) == 1:
+            message = u'является файлом'
+        else:
+            message = u'являются файлами'
+        raise ValueError(u'{} не {} запроса'.format(', '.join(no_requests), message))
+
     request_data = [item.read() for item in request.files.getlist('request')]
     if request_data == ['']:
         raise ValueError(u'Не указан(ы) файл(ы) запроса')
     s = BytesIO()
     temp_zip_file = zipfile.ZipFile(s, 'w')
 
-    if not args.get('authority'):
-        args['authority'] = '172.17.7.38'
+    args['authority'] = args.get('authority_text') if args.get('authority_text') else args.get('authority_select')
 
     proxy = {args.get('proxy_protocol'): '{}:{}'.format(args.get('proxy_address'), args.get('proxy_port'))} \
         if args.get('isProxy') else None

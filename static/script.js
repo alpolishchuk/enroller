@@ -6,4 +6,12 @@ $(function () {
       $('#address').css("display", "none")
     }
   });
+  $('#authority').change(function () {
+    $("select option:selected").each(function() {
+      if ($( this ).text() === "Ввести свой") {
+        $('#authoritySelect').css("display", "none")
+        $('#authorityText').css("display", "table-row")
+      }
+    });
+  }).change();
 });

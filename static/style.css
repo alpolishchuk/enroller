@@ -7,6 +7,6 @@ input[type="checkbox"] {
   margin-left: 30px;
 }
 
-#address {
+#address, #authorityText {
   display: none;
 }

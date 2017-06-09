@@ -4,7 +4,17 @@
 <form action="/enroll" method="post" enctype="multipart/form-data">
   <table class="content">
     <tr><td>Адрес УЦ</td>
-      <td><input name="authority" type="text" size=30 placeholder="По умолчанию: 172.17.7.38"></td>
+      <td id="authoritySelect">
+        <select name="authority_select" id="authority">
+          <option selected>172.17.7.38</option>
+          <option>172.17.7.27</option>
+          <option>172.17.6.195</option>
+          <option>Ввести свой адрес УЦ</option>
+        </select>
+      </td>
+      <td id="authorityText">
+        <input name="authority_text" type="text" size=30 placeholder="IP адрес или доменное имя">
+      </td>
     </tr>
     <tr><td>Файлы запроса</td><td><input name="request" type="file" multiple></td></tr>
     <tr><td>Загрузить цепочку сертификатов</td><td><input name="chain" type="checkbox"></td></tr>
