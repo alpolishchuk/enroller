@@ -7,11 +7,39 @@ $(function () {
     }
   });
   $('#authority').change(function () {
-    $("select option:selected").each(function() {
-      if ($( this ).text() === "Ввести свой адрес УЦ") {
-        $('#authoritySelect').css("display", "none")
-        $('#authorityText').css("display", "table-row")
-      }
-    });
+    if ($( "#authority option:selected" ).text() === "Ввести свой адрес УЦ") {
+      $('#authority_text').css("display", "table-row")
+    } else {
+      $('#authority_text').css("display", "none")
+    }
   }).change();
+  $('#certform').validate({
+    rules: {
+      proxy_address: {
+        required: $('#address:checked')
+      },
+      proxy_port: {
+        digits: true,
+        maxlength: 5,
+        required: $('#address:checked')
+      }
+    },
+    messages: {
+      request: "*",
+      proxy_address: "*",
+      proxy_port: {
+        digits: "Некорректный порт",
+        maxlength: "Значение порта не должно превышать 65535",
+        required: "*"
+      }
+    },
+    errorPlacement: function(error, element) {
+      error.insertAfter(element)
+      error.addClass('message');  // add a class to the wrapper
+      error.css('margin-left', 5);
+      error.css('border', 'none');
+      error.css('color', 'red');
+      $('#required').css('display', 'block').css('margin', '10px auto auto 25px');
+    }
+  })
 });

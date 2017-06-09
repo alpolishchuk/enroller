@@ -38,7 +38,7 @@ def enroll():
     no_requests = [item.filename for item in request.files.getlist('request')
                    if os.path.splitext(item.filename)[1] != '.p10']
 
-    if no_requests:
+    if no_requests and no_requests != ['']:
         if len(no_requests) == 1:
             message = u'является файлом'
         else:
@@ -46,15 +46,21 @@ def enroll():
         raise ValueError(u'{} не {} запроса'.format(', '.join(no_requests), message))
 
     request_data = [item.read() for item in request.files.getlist('request')]
+
     if request_data == ['']:
         raise ValueError(u'Не указан(ы) файл(ы) запроса')
+
     s = BytesIO()
     temp_zip_file = zipfile.ZipFile(s, 'w')
 
-    args['authority'] = args.get('authority_text') if args.get('authority_text') else args.get('authority_select')
+    args['authority'] = args.get('authority_text') if args.get('authority_select') == u'Ввести свой адрес УЦ'\
+        else args.get('authority_select')
 
     proxy = {args.get('proxy_protocol'): '{}:{}'.format(args.get('proxy_address'), args.get('proxy_port'))} \
         if args.get('isProxy') else None
+
+    if args.get('isProxy') and not args.get('proxy_address') and not args.get('proxy_port'):
+        raise ValueError(u'Адрес прокси указан неверно')
 
     i = 1
 

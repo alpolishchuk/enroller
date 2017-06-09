@@ -1,22 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Выпуск сертификатов{% endblock %}
 {% block content %}
-<form action="/enroll" method="post" enctype="multipart/form-data">
+<form id="certform" action="/enroll" method="post" enctype="multipart/form-data">
   <table class="content">
     <tr><td>Адрес УЦ</td>
-      <td id="authoritySelect">
+      <td>
         <select name="authority_select" id="authority">
           <option selected>172.17.7.38</option>
           <option>172.17.7.27</option>
           <option>172.17.6.195</option>
           <option>Ввести свой адрес УЦ</option>
         </select>
-      </td>
-      <td id="authorityText">
-        <input name="authority_text" type="text" size=30 placeholder="IP адрес или доменное имя">
+        <input id="authority_text" name="authority_text" type="text" size=30 placeholder="IP адрес или доменное имя">
       </td>
     </tr>
-    <tr><td>Файлы запроса</td><td><input name="request" type="file" multiple></td></tr>
+    <tr><td>Файлы запроса</td><td><input name="request" type="file" multiple required></td></tr>
     <tr><td>Загрузить цепочку сертификатов</td><td><input name="chain" type="checkbox"></td></tr>
     <tr><td>Сертификаты в кодировке Base64</td><td><input name="base64" type="checkbox"></td></tr>
     <tr><td>Использовать прокси</td><td><input id="isProxy" name="isProxy" type="checkbox"></td></tr>
@@ -32,6 +30,5 @@
     </tr>
   </table>
   <button type="submit">Выпустить</button>
-
 </form>
 {% endblock %}
