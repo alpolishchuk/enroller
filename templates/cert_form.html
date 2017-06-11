@@ -2,33 +2,65 @@
 {% block title %}Выпуск сертификатов{% endblock %}
 {% block content %}
 <form id="certform" action="/enroll" method="post" enctype="multipart/form-data">
-  <table class="content">
-    <tr><td>Адрес УЦ</td>
-      <td>
-        <select name="authority_select" id="authority">
-          <option selected>172.17.7.38</option>
-          <option>172.17.7.27</option>
-          <option>172.17.6.195</option>
-          <option>Ввести свой адрес УЦ</option>
-        </select>
-        <input id="authority_text" name="authority_text" type="text" size=30 placeholder="IP адрес или доменное имя">
-      </td>
-    </tr>
-    <tr><td>Файлы запроса</td><td><input name="request" type="file" multiple required></td></tr>
-    <tr><td>Загрузить цепочку сертификатов</td><td><input name="chain" type="checkbox"></td></tr>
-    <tr><td>Сертификаты в кодировке Base64</td><td><input name="base64" type="checkbox"></td></tr>
-    <tr><td>Использовать прокси</td><td><input id="isProxy" name="isProxy" type="checkbox"></td></tr>
-    <tr id="address"><td>Адрес прокси</td>
-      <td>
-        <select name="proxy_protocol">
-          <option value="http">http</option>
-          <option value="https">https</option>
-        </select>
-        <input name="proxy_address" type="text" placeholder="Адрес прокси">:
-        <input name="proxy_port" type="text" size=6 placeholder="Порт">
-      </td>
-    </tr>
-  </table>
-  <button type="submit">Выпустить</button>
+    <div>
+      <h4>Адрес УЦ</h4>
+      <ul class="form-ca">
+        <li>
+          <select name="authority_select" id="authority">
+            <option selected>172.17.7.38</option>
+            <option>172.17.7.27</option>
+            <option>172.17.6.195</option>
+            <option>Ввести свой адрес УЦ</option>
+          </select>
+        </li>
+
+        <li id="authority-text">
+          <input name="authority_text" type="text" size=30 placeholder="IP адрес или доменное имя">
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h4>Запросы</h4>
+
+      <ul class="form-requests">
+        <li>
+          <input name="request" id="request" type="file" multiple required>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h4>Формат сертификатов</h4>
+
+      <ul class="form-formats">
+        <li>
+          <input type="checkbox" id="chain" name="chain">
+          <label for="chain">Цепочка сертификатов</label>
+        </li>
+
+        <li>
+          <input type="checkbox" id="base64" name="base64">
+          <label for="base64">Кодировка Base64</label>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h4>Прокси</h4>
+      <ul class="form-proxy">
+        <li>
+          <input type="checkbox" id="isProxy" name="isProxy">
+          <label for="isProxy">Использовать прокси</label>
+        </li>
+
+        <li id="address">
+          <select name="proxy_protocol" id="proxy_protocol">
+            <option value="http">http</option>
+            <option value="https">https</option>
+          </select>
+          <input name="proxy_address" type="text" placeholder="Адрес прокси">:
+          <input name="proxy_port" type="text" size=6 placeholder="Порт">
+        </li>
+      </ul>
+    </div>
+  <button type="submit" class="subm-button">Выпустить сертификат(ы)</button>
 </form>
 {% endblock %}

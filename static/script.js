@@ -1,16 +1,30 @@
 $(function () {
   $("#isProxy").change(function() {
     if(this.checked) {
-      $('#address').css("display", "table-row")
+      $('#address').css("display", "list-item")
     } else {
       $('#address').css("display", "none")
     }
   });
+  $("#chain").change(function() {
+    if(this.checked) {
+      $('#base64').attr("disabled", "disabled")
+    } else {
+      $('#base64').removeAttr("disabled", "disabled")
+    }
+  });
+  $("#base64").change(function() {
+    if(this.checked) {
+      $('#chain').attr("disabled", "disabled")
+    } else {
+      $('#chain').removeAttr("disabled", "disabled")
+    }
+  });
   $('#authority').change(function () {
     if ($( "#authority option:selected" ).text() === "Ввести свой адрес УЦ") {
-      $('#authority_text').css("display", "table-row")
+      $('#authority-text').css("display", "table-row")
     } else {
-      $('#authority_text').css("display", "none")
+      $('#authority-text').css("display", "none")
     }
   }).change();
   $('#certform').validate({

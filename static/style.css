@@ -1,10 +1,24 @@
+ul {
+  padding: 0;
+}
+
+li {
+  list-style-type: none;
+}
+
+form {
+  width: 500px;
+  margin: 60px auto auto auto;
+  padding: 40px;
+}
+
+.form-formats, .form-proxy, .form-ca {
+  display: inline-flex;
+}
+
 .content {
   display: flex;
   margin-left: 20px;
-}
-
-input[type="checkbox"] {
-  margin-left: 30px;
 }
 
 #address, #authorityText {
@@ -13,4 +27,43 @@ input[type="checkbox"] {
 
 .error {
   border: 1px solid red;
+}
+
+h4 {
+  font-size: 1.1rem;
+  margin: auto;
+}
+
+label, #authority {
+  margin-right: 15px;
+}
+
+.subm-button {
+  background: #41b052;
+  background-image: -webkit-linear-gradient(top, #41b052, #216e23);
+  background-image: -moz-linear-gradient(top, #41b052, #216e23);
+  background-image: -ms-linear-gradient(top, #41b052, #216e23);
+  background-image: -o-linear-gradient(top, #41b052, #216e23);
+  background-image: linear-gradient(to bottom, #41b052, #216e23);
+  -webkit-border-radius: 28px;
+  -moz-border-radius: 28px;
+  border-radius: 28px;
+  color: #ffffff;
+  font-size: 15px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+
+.subm-button:active {
+  background: #216e23;
+  background-image: -webkit-linear-gradient(top, #216e23, #41b052);
+  background-image: -moz-linear-gradient(top, #216e23, #41b052);
+  background-image: -ms-linear-gradient(top, #216e23, #41b052);
+  background-image: -o-linear-gradient(top, #216e23, #41b052);
+  background-image: linear-gradient(to bottom, #216e23, #41b052);
+  text-decoration: none;
+}
+
+button:focus, input:focus {
+  outline: 0;
 }

@@ -59,7 +59,7 @@ def enroll():
     proxy = {args.get('proxy_protocol'): '{}:{}'.format(args.get('proxy_address'), args.get('proxy_port'))} \
         if args.get('isProxy') else None
 
-    if args.get('isProxy') and not args.get('proxy_address') and not args.get('proxy_port'):
+    if args.get('isProxy') and not (args.get('proxy_address') and args.get('proxy_port')):
         raise ValueError(u'Адрес прокси указан неверно')
 
     i = 1
