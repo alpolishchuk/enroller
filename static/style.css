@@ -8,7 +8,7 @@ li {
 
 form {
   width: 550px;
-  margin: 60px auto auto auto;
+  margin: 30px auto auto auto;
   padding: 40px;
 }
 
@@ -16,12 +16,7 @@ form {
   display: inline-flex;
 }
 
-.content {
-  display: flex;
-  margin-left: 20px;
-}
-
-#address, #authorityText {
+#address, #authority-text {
   display: none;
 }
 
