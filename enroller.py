@@ -66,12 +66,11 @@ def enroll():
     proxy = {args.get('proxy_protocol'): '{}:{}'.format(args.get('proxy_address'), args.get('proxy_port'))} \
         if args.get('isProxy') else None
 
-    if args.get('isProxy') and not (args.get('proxy_address') and args.get('proxy_port')):
+    if args.get('isProxy') and not (args.get('proxy_address') and args.get('proxy_port')
+                                    and re.compile(r'^\d{,5}$').match(args.get('proxy_port'))
+                                    and 0 < args.get('proxy_port') < 65536
+                                    and isinstance(args.get('proxy_port'), str)):
         return Response(response=u'Адрес прокси указан неверно', status=400)
-
-    if not re.compile(r'^\d{,5}$').match(args.get('proxy_port'))\
-            and not 0 < args.get('proxy_port') < 65536 or not isinstance(args.get('proxy_port'), str):
-        return Response(response=u'Некорректный порт прокси', status=400)
 
     i = 1
 

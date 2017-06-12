@@ -75,9 +75,6 @@ class FlaskrTestCase(unittest.TestCase):
                                                       proxy_port='8000'))
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, 'Адрес прокси указан неверно')
-
-    def test_bad_port(self):
-        req_name = '1.p10'
         ports = ['as', '2v', '0', 8080, '65536', '123456']
         for item in ports:
             response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
@@ -86,7 +83,7 @@ class FlaskrTestCase(unittest.TestCase):
                                                           proxy_address='1.2.3.4',
                                                           proxy_port=item))
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.data, 'Некорректный порт прокси')
+            self.assertEqual(response.data, 'Адрес прокси указан неверно')
 
 if __name__ == '__main__':
     unittest.main()
