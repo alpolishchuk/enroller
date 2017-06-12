@@ -3,9 +3,10 @@ import sys
 import os
 import zipfile
 import time
+import re
 from io import BytesIO
 import requests
-from flask import Flask, render_template, request, make_response, send_file
+from flask import Flask, render_template, request, make_response, send_file, Response
 from flask_restful import reqparse
 from lxml import html
 
@@ -17,9 +18,9 @@ def main_page():
     return render_template('cert_form.html')
 
 
-@app.errorhandler(500)
+@app.errorhandler(400)
 def server_error(message):
-    return render_template('err_page.html', error_message=message), 500
+    return render_template('err_page.html', error_message=message), 400
 
 
 @app.route("/enroll", methods=['POST'])
@@ -35,6 +36,12 @@ def enroll():
     parser.add_argument('base64', location='form', help='Get base64 encoded certificate or p7b chain')
     args = parser.parse_args()
 
+    if not (args.get('authority_select') or args.get('authority_text')) and not request.files.getlist('request'):
+        return Response(response=u'Некорректный запрос', status=400)
+
+    if not (args.get('authority_select') or args.get('authority_text')):
+        return Response(response=u'Не указан адрес УЦ', status=400)
+
     no_requests = [item.filename for item in request.files.getlist('request')
                    if os.path.splitext(item.filename)[1] != '.p10']
 
@@ -43,12 +50,12 @@ def enroll():
             message = u'является файлом'
         else:
             message = u'являются файлами'
-        raise ValueError(u'{} не {} запроса'.format(', '.join(no_requests), message))
+        return Response(response=u'{} не {} запроса'.format(', '.join(no_requests), message), status=400)
 
     request_data = [item.read() for item in request.files.getlist('request')]
 
-    if request_data == ['']:
-        raise ValueError(u'Не указан(ы) файл(ы) запроса')
+    if request_data in [[''], []]:
+        return Response(response=u'Не указан(ы) файл(ы) запроса', status=400)
 
     s = BytesIO()
     temp_zip_file = zipfile.ZipFile(s, 'w')
@@ -60,7 +67,11 @@ def enroll():
         if args.get('isProxy') else None
 
     if args.get('isProxy') and not (args.get('proxy_address') and args.get('proxy_port')):
-        raise ValueError(u'Адрес прокси указан неверно')
+        return Response(response=u'Адрес прокси указан неверно', status=400)
+
+    if not re.compile(r'^\d{,5}$').match(args.get('proxy_port'))\
+            and not 0 < args.get('proxy_port') < 65536 or not isinstance(args.get('proxy_port'), str):
+        return Response(response=u'Некорректный порт прокси', status=400)
 
     i = 1
 
