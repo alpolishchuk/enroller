@@ -114,6 +114,8 @@ def enroll():
             sys.exit(1)
     temp_zip_file.close()
     s.seek(0)
+    with open('/tmp/counter', 'a') as f:
+        f.write(str(len(request_data)) + '\n')
     return send_file(s, attachment_filename='certs.zip', as_attachment=True)
 
 
