@@ -96,14 +96,13 @@ def enroll():
                                     .format(args.get('authority'), certificate_url), proxies=proxy)
 
         file_format = 'p7b' if args.get('chain') else 'cer'
-
-        with open('/tmp/counter', 'a') as f:
-            f.write(str(len(request_data)) + '\n')
         if request_file.status_code == 200:
             if len(request_data) == 1:
                 certificate = request_file.content
                 response = make_response(certificate)
                 response.headers["Content-Disposition"] = "attachment; filename=certnew.{}".format(file_format)
+                with open('/tmp/counter', 'a') as f:
+                    f.write('1\n')
                 return response
             else:
                 data = zipfile.ZipInfo('certnew{}.{}'.format(i, file_format))
@@ -116,6 +115,8 @@ def enroll():
             sys.exit(1)
     temp_zip_file.close()
     s.seek(0)
+    with open('/tmp/counter', 'a') as f:
+        f.write(str(len(request_data)) + '\n')
     return send_file(s, attachment_filename='certs.zip', as_attachment=True)
 
 
