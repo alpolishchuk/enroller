@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-import enroller
+from __future__ import unicode_literals
+
 import unittest
 from io import BytesIO
+
 from flask.testing import FlaskClient
+
+import enroller
 
 
 class CustomClient(FlaskClient):
@@ -21,69 +25,71 @@ class FlaskrTestCase(unittest.TestCase):
     def test_empty_request(self):
         response = self.app.post("/enroll")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, 'Некорректный запрос')
+        self.assertEqual(response.data.decode('utf-8'), 'Некорректный запрос')
 
     def test_no_authority(self):
-        response = self.app.post("/enroll", data=dict(request=(BytesIO('my file contents'), 'hello world.txt')))
+        response = self.app.post("/enroll", data=dict(request=(BytesIO(b'my file contents'), 'hello world.txt')))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, 'Не указан адрес УЦ')
+        self.assertEqual(response.data.decode('utf-8'), 'Не указан адрес УЦ')
 
     def test_no_request_file(self):
         response = self.app.post("/enroll", data={'authority_select': '1.1.1.1'})
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, 'Не указан(ы) файл(ы) запроса')
+        self.assertEqual(response.data.decode('utf-8'), 'Не указан(ы) файл(ы) запроса')
 
     def test_invalid_request_file(self):
         file_name = '1.txt'
         response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
-                                                      request=(BytesIO('file content'), file_name)))
+                                                      request=(BytesIO(b'file content'), file_name)))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, '{} не является файлом запроса'.format(file_name))
+        self.assertEqual(response.data.decode('utf-8'), '{} не является файлом запроса'.format(file_name))
         
     def test_invalid_with_valid_request_file(self):
         req_name = '1.p10'
         file_name1 = '1.txt'
         file_name2 = '2.txt'
         response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
-                                                      request=[(BytesIO('req content'), req_name),
-                                                               (BytesIO('file content'), file_name1)]))
+                                                      request=[(BytesIO(b'req content'), req_name),
+                                                               (BytesIO(b'file content'), file_name1)]))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, '{} не является файлом запроса'.format(file_name1))
+        self.assertEqual(response.data.decode('utf-8'), '{} не является файлом запроса'.format(file_name1))
         response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
-                                                      request=[(BytesIO('req content'), req_name),
-                                                               (BytesIO('file content'), file_name1),
-                                                               (BytesIO('file content'), file_name2)]))
+                                                      request=[(BytesIO(b'req content'), req_name),
+                                                               (BytesIO(b'file content'), file_name1),
+                                                               (BytesIO(b'file content'), file_name2)]))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, '{}, {} не являются файлами запроса'.format(file_name1, file_name2))
+        self.assertEqual(response.data.decode('utf-8'), '{}, {} не являются файлами запроса'
+                                                        .format(file_name1, file_name2))
 
     def test_set_proxy(self):
         req_name = '1.p10'
         response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
-                                                      request=(BytesIO('req content'), req_name),
+                                                      request=(BytesIO(b'req content'), req_name),
                                                       isProxy=True))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, 'Адрес прокси указан неверно')
+        self.assertEqual(response.data.decode('utf-8'), 'Адрес прокси указан неверно')
         response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
-                                                      request=(BytesIO('req content'), req_name),
+                                                      request=(BytesIO(b'req content'), req_name),
                                                       isProxy=True,
                                                       proxy_address='1.2.3.4'))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, 'Адрес прокси указан неверно')
+        self.assertEqual(response.data.decode('utf-8'), 'Адрес прокси указан неверно')
         response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
-                                                      request=(BytesIO('req content'), req_name),
+                                                      request=(BytesIO(b'req content'), req_name),
                                                       isProxy=True,
                                                       proxy_port='8000'))
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, 'Адрес прокси указан неверно')
-        ports = ['as', '2v', '0', 8080, '65536', '123456']
+        self.assertEqual(response.data.decode('utf-8'), 'Адрес прокси указан неверно')
+        ports = ['as', '2v', '0', '65536', '123456']
         for item in ports:
             response = self.app.post("/enroll", data=dict(authority_select='1.1.1.1',
-                                                          request=(BytesIO('req content'), req_name),
+                                                          request=(BytesIO(b'req content'), req_name),
                                                           isProxy=True,
                                                           proxy_address='1.2.3.4',
                                                           proxy_port=item))
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(response.data, 'Адрес прокси указан неверно')
+            self.assertEqual(response.data.decode('utf-8'), 'Адрес прокси указан неверно')
+
 
 if __name__ == '__main__':
     unittest.main()
