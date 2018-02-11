@@ -36,13 +36,15 @@ def enroll():
     parser = reqparse.RequestParser()
     parser.add_argument('authority_select', location='form')
     parser.add_argument('authority_text', location='form')
-    parser.add_argument('isProxy', location='form', help='Proxy protocol')
+    parser.add_argument('is_proxy', location='form', help='Proxy protocol')
     parser.add_argument('proxy_protocol', location='form', help='Proxy protocol')
     parser.add_argument('proxy_address', location='form', help='Proxy address')
     parser.add_argument('proxy_port', location='form', help='Proxy port')
     parser.add_argument('chain', location='form', help='Get p7b chain')
     parser.add_argument('base64', location='form', help='Get base64 encoded certificate or p7b chain')
     args = parser.parse_args()
+
+    proxy = None
 
     if not (args.get('authority_select') or args.get('authority_text')) and not request.files.getlist('request'):
         return Response(response='Некорректный запрос', status=400)
@@ -62,20 +64,23 @@ def enroll():
 
     request_data = [item.read() for item in request.files.getlist('request')]
 
-    if request_data in [[''], []]:
+    if not request_data or not any(request_data):
         return Response(response='Не указан(ы) файл(ы) запроса', status=400)
 
-    args['authority'] = args.get('authority_text') if args.get('authority_select') == 'Ввести свой адрес УЦ' \
-        else args.get('authority_select')
+    if args.get('authority_select') == 'Ввести свой адрес УЦ':
+        authority = args.get('authority_text')
+    else:
+        authority = args.get('authority_select')
 
-    proxy = {args.get('proxy_protocol'): '{}:{}'.format(args.get('proxy_address'), args.get('proxy_port'))} \
-        if args.get('isProxy') else None
+    if args.get('is_proxy'):
+        if not (args.get('proxy_address')
+                and args.get('proxy_port')
+                and re.compile(r'^\d{,5}$').match(args.get('proxy_port'))
+                and 0 < int(args.get('proxy_port')) < 65536
+                and isinstance(args.get('proxy_port'), str)):
+            return Response(response='Адрес прокси указан неверно', status=400)
 
-    if args.get('isProxy') and not (args.get('proxy_address') and args.get('proxy_port')
-                                    and re.compile(r'^\d{,5}$').match(args.get('proxy_port'))
-                                    and 0 < int(args.get('proxy_port')) < 65536
-                                    and isinstance(args.get('proxy_port'), str)):
-        return Response(response='Адрес прокси указан неверно', status=400)
+        proxy = {args.get('proxy_protocol'): '{}:{}'.format(args.get('proxy_address'), args.get('proxy_port'))}
 
     s = BytesIO()
     temp_zip_file = zipfile.ZipFile(s, 'w')
@@ -88,8 +93,9 @@ def enroll():
                 'TargetStoreFlags': '0',
                 'SaveCert': 'yes'}
 
-        certpage = requests.post('http://{}/certsrv/certfnsh.asp'
-                                 .format(args.get('authority')), data=data, proxies=proxy, timeout=5)
+        certpage = requests.post(
+            'http://{}/certsrv/certfnsh.asp'.format(authority), data=data, proxies=proxy, timeout=5
+        )
         page = html.fromstring(certpage.content)
         try:
             srv, cert_bin, cert_b64, cert_chain_bin, cert_chain_b64 = page.xpath('//a/@href')
@@ -98,15 +104,16 @@ def enroll():
             error_title = err_title[0].text.strip() if err_title else 'Неизвестная ошибка'
             err_text = page.xpath("//p[@id = 'locInfoReqIDandReason']")
             error_text = err_text[0].text.strip() if err_text else 'Ошибка создания сертификата'
-            return Response(response='\n'.join([error_title, error_text]), status=400)
+            return Response(response=', '.join([error_title, error_text]), status=400)
 
         if args.get('base64'):
             certificate_url = cert_chain_b64 if args.get('chain') else cert_b64
         else:
             certificate_url = cert_chain_bin if args.get('chain') else cert_bin
 
-        request_file = requests.get('http://{}/certsrv/{}'
-                                    .format(args.get('authority'), certificate_url), proxies=proxy)
+        request_file = requests.get(
+            'http://{}/certsrv/{}'.format(authority, certificate_url), proxies=proxy
+        )
 
         file_format = 'p7b' if args.get('chain') else 'cer'
         if request_file.status_code == 200:
