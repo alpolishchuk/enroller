@@ -101,10 +101,11 @@ def enroll():
             srv, cert_bin, cert_b64, cert_chain_bin, cert_chain_b64 = page.xpath('//a/@href')
         except ValueError:
             err_title = page.xpath("//p[@id = 'locDenied']")
-            error_title = err_title[0].text.strip() if err_title else 'Неизвестная ошибка'
+            error_title = err_title[0].text.strip() if err_title else 'Неизвестная ошибка.'
             err_text = page.xpath("//p[@id = 'locInfoReqIDandReason']")
-            error_text = err_text[0].text.strip() if err_text else 'Ошибка создания сертификата'
-            return Response(response=', '.join([error_title, error_text]), status=400)
+            error_text = err_text[0].text.strip() if err_text else 'Ошибка создания сертификата.'
+            error_message = '\n'.join([error_title, error_text])
+            return Response(response=error_message, status=400)
 
         if args.get('base64'):
             certificate_url = cert_chain_b64 if args.get('chain') else cert_b64
