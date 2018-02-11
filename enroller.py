@@ -26,6 +26,11 @@ def server_error(message):
     return render_template('err_page.html', error_message=message), 400
 
 
+@app.errorhandler(500)
+def internal_error(message):
+    return render_template('server_err_page.html', server_message=message), 500
+
+
 @app.route("/enroll", methods=['POST'])
 def enroll():
     parser = reqparse.RequestParser()
@@ -34,7 +39,7 @@ def enroll():
     parser.add_argument('isProxy', location='form', help='Proxy protocol')
     parser.add_argument('proxy_protocol', location='form', help='Proxy protocol')
     parser.add_argument('proxy_address', location='form', help='Proxy address')
-    parser.add_argument('proxy_port',  location='form', help='Proxy port')
+    parser.add_argument('proxy_port', location='form', help='Proxy port')
     parser.add_argument('chain', location='form', help='Get p7b chain')
     parser.add_argument('base64', location='form', help='Get base64 encoded certificate or p7b chain')
     args = parser.parse_args()
@@ -60,7 +65,7 @@ def enroll():
     if request_data in [[''], []]:
         return Response(response='Не указан(ы) файл(ы) запроса', status=400)
 
-    args['authority'] = args.get('authority_text') if args.get('authority_select') == 'Ввести свой адрес УЦ'\
+    args['authority'] = args.get('authority_text') if args.get('authority_select') == 'Ввести свой адрес УЦ' \
         else args.get('authority_select')
 
     proxy = {args.get('proxy_protocol'): '{}:{}'.format(args.get('proxy_address'), args.get('proxy_port'))} \
@@ -86,7 +91,14 @@ def enroll():
         certpage = requests.post('http://{}/certsrv/certfnsh.asp'
                                  .format(args.get('authority')), data=data, proxies=proxy, timeout=5)
         page = html.fromstring(certpage.content)
-        srv, cert_bin, cert_b64, cert_chain_bin, cert_chain_b64 = page.xpath('//a/@href')
+        try:
+            srv, cert_bin, cert_b64, cert_chain_bin, cert_chain_b64 = page.xpath('//a/@href')
+        except ValueError:
+            err_title = page.xpath("//p[@id = 'locDenied']")
+            error_title = err_title[0].text.strip() if err_title else 'Неизвестная ошибка'
+            err_text = page.xpath("//p[@id = 'locInfoReqIDandReason']")
+            error_text = err_text[0].text.strip() if err_text else 'Ошибка создания сертификата'
+            return Response(response='\n'.join([error_title, error_text]), status=400)
 
         if args.get('base64'):
             certificate_url = cert_chain_b64 if args.get('chain') else cert_b64
