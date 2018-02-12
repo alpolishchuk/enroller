@@ -98,7 +98,15 @@ def enroll():
         )
         page = html.fromstring(certpage.content)
         try:
-            srv, cert_bin, cert_b64, cert_chain_bin, cert_chain_b64 = page.xpath('//a/@href')
+            srv, cert_bin, *rest_options = page.xpath('//a/@href')
+            certificate_url = cert_bin
+            if rest_options:
+                cert_b64, cert_chain_bin, cert_chain_b64 = rest_options
+
+                if args.get('base64'):
+                    certificate_url = cert_chain_b64 if args.get('chain') else cert_b64
+                else:
+                    certificate_url = cert_chain_bin if args.get('chain') else cert_bin
         except ValueError:
             err_title = page.xpath("//p[@id = 'locDenied']")
             error_title = err_title[0].text.strip() if err_title else 'Неизвестная ошибка.'
@@ -106,11 +114,6 @@ def enroll():
             error_text = err_text[0].text.strip() if err_text else 'Ошибка создания сертификата.'
             error_message = '\n'.join([error_title, error_text])
             return Response(response=error_message, status=400)
-
-        if args.get('base64'):
-            certificate_url = cert_chain_b64 if args.get('chain') else cert_b64
-        else:
-            certificate_url = cert_chain_bin if args.get('chain') else cert_bin
 
         request_file = requests.get(
             'http://{}/certsrv/{}'.format(authority, certificate_url), proxies=proxy
